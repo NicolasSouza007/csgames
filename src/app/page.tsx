@@ -1,14 +1,28 @@
 import { Container } from "@/components/Container";
 import { GameProps } from "@/utils/types/game";
 import { BsArrowRightSquare } from "react-icons/bs";
+import { Input } from "@/components/Input";
+import { GameCard } from "@/components/GameCard";
 import Link from "next/link";
 import Image from "next/image";
 
 async function getCSgame() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_API_URL}/next-api/?api=game_day`, {next: {revalidate: 320}}
+      `${process.env.NEXT_API_URL}/next-api/?api=game_day`,
+      { next: { revalidate: 150 } }
     );
+    return res.json();
+  } catch (err) {
+    throw new Error("Failed to fecth data");
+  }
+}
+
+async function getGames() {
+  try {
+    const res = await fetch(`${process.env.NEXT_API_URL}/next-api/?api=games`, {
+      next: { revalidate: 320 },
+    });
     return res.json();
   } catch (err) {
     throw new Error("Failed to fecth data");
@@ -17,6 +31,7 @@ async function getCSgame() {
 
 export default async function Home() {
   const csGames: GameProps = await getCSgame();
+  const data: GameProps[] = await getGames();
 
   return (
     <div>
@@ -46,6 +61,14 @@ export default async function Home() {
               </div>
             </section>
           </Link>
+          <Input />
+
+          <h2 className="text-lg font-bold mt-8 mb-5">Jogos para conhcer</h2>
+          <section className="grid gap-7 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {data.map((item) => (
+              <GameCard key={item.id} data={item} />
+            ))}
+          </section>
         </Container>
       </main>
     </div>
